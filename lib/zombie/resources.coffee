@@ -176,6 +176,10 @@ class Resources extends Array
     if method == "GET" || method == "HEAD"
       # Request paramters go in query string
       url.search = "?" + stringify(data) if data
+      # Request parameters go in query string and are also appended to url path
+      if data
+        url.search = "?" + stringify(data)
+        url.path  += url.search
     else
       # Construct body from request parameters.
       switch headers["content-type"]

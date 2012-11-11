@@ -1141,3 +1141,30 @@ describe "Forms", ->
         assert.equal @browser.query(tagName).getAttribute("id"), null
         assert.equal @browser.query(tagName).id, ""
 
+  describe "GET form submission", ->
+    before (done)->
+      brains.get "/forms/get", (req, res)->
+        res.send """
+        <html>
+          <body>
+            <form method="get" action="/forms/get/echo">
+              <input type="text" name="my_param" value="my_value">
+              <input type="submit" value="submit">
+            </form>
+          </body>
+        </html>
+        """
+      brains.get "/forms/get/echo", (req, res) ->
+        res.send """
+        <html>
+          <body>#{req.query.my_param}</body>
+        </html>
+        """
+
+      @browser = new Browser()
+      @browser.visit("/forms/get")
+        .then =>
+          return @browser.pressButton("submit", done)
+
+    it "should echo the correct query string", ->
+      assert.equal @browser.text("body"), "my_value"
